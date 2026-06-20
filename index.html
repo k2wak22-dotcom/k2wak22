@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="교사를 위한 쉽고 재미있는 학급 자리배치 프로그램. 다양한 애니메이션과 스마트한 기능 제공.">
+  <title>🏫 스마트 학급 자리배치 프로그램</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background glow effects -->
+  <div class="glow-bg glow-1"></div>
+  <div class="glow-bg glow-2"></div>
+
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo-area">
+        <span class="logo-emoji">🏫</span>
+        <div>
+          <h1>스마트 학급 자리배치</h1>
+          <p class="subtitle">Class Seating Randomizer</p>
+        </div>
+      </div>
+      
+      <!-- Tab Navigation -->
+      <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="tab-students" id="btn-tab-students">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          학생 명단 관리
+        </button>
+        <button class="tab-btn" data-tab="tab-layout" id="btn-tab-layout">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+          배치도 설정
+        </button>
+        <button class="tab-btn" data-tab="tab-draw" id="btn-tab-draw">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          자리 뽑기
+        </button>
+      </nav>
+    </header>
+
+    <main class="app-main">
+      <!-- 1. Student List Tab -->
+      <section id="tab-students" class="tab-content active">
+        <div class="grid-2col">
+          <!-- Input Area -->
+          <div class="card glass-card">
+            <h2 class="card-title">
+              <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"/></svg>
+              학생 명단 등록
+            </h2>
+            <p class="card-desc">이름을 줄바꿈(Enter) 또는 쉼표(,)로 구분하여 입력해 주세요. 엑셀 등에서 복사하여 붙여넣어도 편리합니다.</p>
+            <div class="textarea-container">
+              <textarea id="student-raw-input" placeholder="예시)&#10;김철수&#10;이영희&#10;박민수, 정수현, 최지우" rows="10"></textarea>
+            </div>
+            <div class="btn-group-right">
+              <button class="btn btn-secondary" id="btn-clear-input">지우기</button>
+              <button class="btn btn-primary" id="btn-import-students">학생 등록하기</button>
+            </div>
+          </div>
+
+          <!-- List Area -->
+          <div class="card glass-card">
+            <div class="card-header-split">
+              <h2 class="card-title">
+                <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                등록된 학생 명단 (<span id="student-count">0</span>명)
+              </h2>
+              <button class="btn-text-danger" id="btn-clear-all-students">전체 삭제</button>
+            </div>
+            <div class="student-list-container">
+              <div class="student-helper-msg" id="student-empty-msg">등록된 학생이 없습니다. 왼쪽에서 명단을 등록해 주세요.</div>
+              <ul class="student-list" id="student-list-ul"></ul>
+            </div>
+            <div class="list-summary-bar">
+              <span class="summary-item"><span class="badge badge-normal"></span> 등교: <strong id="count-active">0</strong>명</span>
+              <span class="summary-item"><span class="badge badge-absent"></span> 결석: <strong id="count-absent">0</strong>명</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Seating Grid Setup Tab -->
+      <section id="tab-layout" class="tab-content">
+        <div class="grid-2col">
+          <!-- Setup Controller -->
+          <div class="card glass-card">
+            <h2 class="card-title">
+              <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              교실 배치 및 고정석 설정
+            </h2>
+            
+            <div class="setting-group">
+              <label class="setting-label">가로 줄 수 (열)</label>
+              <div class="slider-container">
+                <input type="range" id="layout-cols" min="1" max="10" value="6" class="slider">
+                <span class="slider-val" id="layout-cols-val">6</span>
+              </div>
+            </div>
+            
+            <div class="setting-group">
+              <label class="setting-label">세로 줄 수 (행)</label>
+              <div class="slider-container">
+                <input type="range" id="layout-rows" min="1" max="10" value="5" class="slider">
+                <span class="slider-val" id="layout-rows-val">5</span>
+              </div>
+            </div>
+
+            <div class="info-alert">
+              <strong>💡 자리 설정 가이드</strong>
+              <ul>
+                <li><strong>일반 자리:</strong> 클릭 시 '비활성석(X)'으로 설정되어 자리가 공백으로 남습니다 (기둥, 교탁 등 통로 영역).</li>
+                <li><strong>고정석 지정:</strong> 우측 하단에서 고정석으로 지정할 학생을 선택하고 배치판의 자리를 누르면 고정됩니다.</li>
+              </ul>
+            </div>
+
+            <div class="fix-student-selector-box">
+              <label class="setting-label">고정 지정할 학생 선택</label>
+              <select id="fix-student-select" class="form-select">
+                <option value="">-- 고정 지정할 학생 선택 --</option>
+              </select>
+              <p class="select-help">학생 선택 후 우측 배치도의 자리를 클릭하면 지정됩니다.</p>
+            </div>
+          </div>
+
+          <!-- Interactive Layout Setup Grid -->
+          <div class="card glass-card text-center">
+            <div class="blackboard-area">
+              <div class="blackboard">칠 판 (교탁 위치)</div>
+            </div>
+            
+            <div class="setup-grid-container">
+              <div class="seating-grid" id="setup-seating-grid"></div>
+            </div>
+
+            <div class="grid-legend">
+              <span class="legend-item"><span class="legend-box desk-box"></span> 일반 자리</span>
+              <span class="legend-item"><span class="legend-box desk-box disabled"></span> 비활성화석 (빈 공간)</span>
+              <span class="legend-item"><span class="legend-box desk-box fixed"></span> 고정석</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Seating Draw Tab -->
+      <section id="tab-draw" class="tab-content">
+        <!-- Top Toolbar & Game Modes Selection -->
+        <div class="card glass-card mb-20">
+          <div class="mode-selector-header">
+            <h2 class="section-title">뽑기 방식 선택</h2>
+            <div class="mode-tabs">
+              <button class="mode-tab-btn active" data-mode="instant" id="btn-mode-instant">
+                <span class="mode-icon">🎲</span>
+                초스피드 셔플
+              </button>
+              <button class="mode-tab-btn" data-mode="roulette" id="btn-mode-roulette">
+                <span class="mode-icon">🎡</span>
+                룰렛 돌리기
+              </button>
+              <button class="mode-tab-btn" data-mode="cards" id="btn-mode-cards">
+                <span class="mode-icon">🃏</span>
+                카드 뒤집기
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="draw-workspace-layout">
+          <!-- Main Seating Classroom Grid -->
+          <div class="card glass-card draw-classroom-panel">
+            <div class="blackboard-area">
+              <div class="blackboard">칠 판 (교탁 위치)</div>
+            </div>
+            
+            <div id="classroom-grid-wrapper">
+              <!-- Grid will be rendered dynamically here -->
+              <div class="seating-grid" id="draw-seating-grid"></div>
+            </div>
+
+            <div class="btn-group-center mt-30">
+              <button class="btn btn-secondary" id="btn-reset-seating">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                배치 초기화
+              </button>
+              <button class="btn btn-primary btn-large animate-glow" id="btn-start-draw">
+                <span id="start-draw-text">뽑기 시작!</span>
+              </button>
+              <button class="btn btn-info" id="btn-print-seating">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                결과 인쇄 / PDF 저장
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Game Panel (Right Side for Roulette / Leftover List / Cards) -->
+          <div class="card glass-card game-control-panel" id="game-control-panel">
+            <!-- Title -->
+            <div class="panel-header">
+              <h3 class="panel-title" id="panel-game-title">대기 중인 학생</h3>
+              <span class="badge" id="leftover-count">0명</span>
+            </div>
+
+            <!-- Content Area 1: Leftover students list (Used in all modes or standby) -->
+            <div class="game-panel-content active" id-panel="panel-leftovers">
+              <div class="leftover-list-container">
+                <div class="leftover-helper" id="leftover-empty-msg">배치할 학생이 없거나 모두 배치되었습니다.</div>
+                <div class="leftover-grid" id="leftover-grid-container"></div>
+              </div>
+            </div>
+
+            <!-- Content Area 2: Canvas Roulette -->
+            <div class="game-panel-content text-center" id-panel="panel-roulette">
+              <div class="roulette-container">
+                <canvas id="roulette-canvas" width="320" height="320"></canvas>
+                <div class="roulette-arrow"></div>
+              </div>
+              <div class="selected-target-seat-info" id="roulette-target-info">
+                자리를 클릭하거나 '뽑기 시작'을 눌러주세요.
+              </div>
+              <button class="btn btn-primary w-full mt-10" id="btn-spin-roulette">룰렛 돌리기</button>
+            </div>
+
+            <!-- Content Area 3: Card Selection info -->
+            <div class="game-panel-content" id-panel="panel-cards">
+              <div class="card-instruction-box">
+                <div class="icon-3d">🃏</div>
+                <h4>카드 뒤집기 모드 활성</h4>
+                <p>왼쪽 자리배치도에 배치되지 않은 일반 자리가 뒷면 카드로 덮여있습니다.</p>
+                <p class="highlight-text">학생이 직접 앞으로 나와 마우스로 원하는 카드를 클릭하여 뒤집으면 자리가 지정됩니다!</p>
+                <div class="next-student-indicator" id="card-next-student">
+                  다음 순서: <strong id="card-next-name">학생 없음</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>© 2026 스마트 학급 자리배치 프로그램. All Rights Reserved.</p>
+    </footer>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <script src="app.js"></script>
+</body>
+</html>
